@@ -1,4 +1,11 @@
-we are using MCV to separation of concern
+# There are 2 repos for similar application in my github account
+1- using ruby on rails
+https://github.com/AgamalARM/alpha-blog
+2- using NodeJS
+https://github.com/AgamalARM/Build_API_E-Commerce_using_NodeJs
+https://github.com/AgamalARM/Alex_Store
+
+# we are using MCV to separation of concern
 Define data models for users, stories, and reviews in your database.
   as:
     User:
