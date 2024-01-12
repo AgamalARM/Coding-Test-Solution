@@ -1,3 +1,4 @@
+###  SQL query 
 SELECT DISTINCT
     (SELECT DISTINCT salary
      FROM Employee
