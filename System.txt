@@ -1,0 +1,246 @@
+we are using MCV to separation of concern
+Define data models for users, stories, and reviews in your database.
+  as:
+    User:
+- id
+- username
+- password
+- ...
+
+Story:
+- id
+- title
+- body
+- user_id (foreign key referencing User)
+- created_at
+- ...
+
+Review:
+- id
+- rating
+- comment
+- story_id (foreign key referencing Story)
+- user_id (foreign key referencing User)
+- created_at
+- ...
+
+API Endpoints:
+Implement API endpoints to handle various actions.
+ POST /api/auth/login     # User login
+ POST /api/auth/register  # User registration
+ POST /api/stories        # Post a story
+ GET /api/stories/:user_id # View a user's timeline
+
+ POST /api/reviews        # Add a review to a story
+ GET /api/stories/top     # View top-rated posts
+
+Business Logic:
+Implement business logic to calculate the average rating for each story.
+# When fetching top-rated posts
+GET /api/stories/top
+   - Query stories
+   - Calculate average rating for each story
+   - Sort by average rating
+   - Return the top-rated stories
+
+# When posting a review
+POST /api/reviews
+   - Validate inputs
+   - Add the review to the database
+   - Update the story's average rating
+
+Database Operations:
+Implement functions to interact with the database
+# Example pseudocode for storing a story in the database
+function createStory(title, body, user_id):
+    story = new Story(title, body, user_id)
+    saveToDatabase(story)
+
+# Example pseudocode for fetching a user's timeline
+function getTimeline(user_id):
+    stories = queryDatabase("SELECT * FROM stories WHERE user_id = ?", user_id)
+    return stories
+
+
+1- API to add a post
+POST /api/stories
+# Example pseudocode for handling the POST request to add a post
+function addPost(request, user_id):
+    # Extract data from the request body
+    title = request.body.title
+    body = request.body.body
+
+    # Validate inputs
+    if not title or not body:
+        return {
+            "success": false,
+            "message": "Title and body are required fields."
+        }
+
+    # Create and store the post in the database
+    post = createStory(title, body, user_id)
+
+    return {
+        "success": true,
+        "message": "Post added successfully",
+        "post": {
+            "id": post.id,
+            "title": post.title,
+            "body": post.body,
+            "user_id": post.user_id,
+            "created_at": post.created_at
+        }
+    }
+
+2-  API to List User Posts with pagination
+GET /api/stories
+# Example pseudocode for handling the GET request to list user posts with pagination
+function listUserPosts(request):
+    # Extract query parameters
+    user_id = request.query.user_id
+    page = request.query.page or 1
+    limit = request.query.limit or 10
+
+    # Validate inputs if needed
+
+    # Fetch posts from the database based on the user_id and pagination parameters
+    posts, total_pages = getPaginatedUserPosts(user_id, page, limit)
+
+    return {
+        "success": true,
+        "message": "User posts retrieved successfully",
+        "posts": posts,
+        "total_pages": total_pages,
+        "current_page": page
+    }
+
+3- API to List Top Posts with pagination
+GET /api/stories/top
+# Example pseudocode for handling the GET request to list top-rated posts with pagination
+function listTopRatedPosts(request):
+    # Extract query parameters
+    page = request.query.page or 1
+    limit = request.query.limit or 10
+
+    # Validate inputs if needed
+
+    # Fetch top-rated posts from the database based on pagination parameters
+    top_posts, total_pages = getPaginatedTopRatedPosts(page, limit)
+
+    return {
+        "success": true,
+        "message": "Top-rated posts retrieved successfully",
+        "top_posts": top_posts,
+        "total_pages": total_pages,
+        "current_page": page
+    }
+
+4- API to add a review to Post, make sure that multiple users can add a review to the same post at the same time. 
+POST /api/reviews
+# Example pseudocode for handling the POST request to add a review to a post
+function addReview(request, user_id):
+    # Extract data from the request body
+    post_id = request.body.post_id
+    rating = request.body.rating
+    comment = request.body.comment
+
+    # Validate inputs
+    if not post_id or not rating or not comment:
+        return {
+            "success": false,
+            "message": "Post ID, rating, and comment are required fields."
+        }
+
+    # Create and store the review in the database
+    review = createReview(post_id, user_id, rating, comment)
+
+    return {
+        "success": true,
+        "message": "Review added successfully",
+        "review": {
+            "id": review.id,
+            "post_id": review.post_id,
+            "user_id": review.user_id,
+            "rating": review.rating,
+            "comment": review.comment,
+            "created_at": review.created_at
+        }
+    }
+
+5- Test cases for the system with coverage for the parts you see are critical. 
+Below are some test cases covering critical aspects of the system:
+
+A. User Registration and Authentication:
+
+    Test user registration with valid and unique credentials.
+    Test user registration with invalid or missing credentials.
+    Test user login with correct credentials.
+    Test user login with incorrect credentials.
+    Test access to protected endpoints without authentication (should return unauthorized).
+
+B. Post Creation and Retrieval:
+
+    Test creating a post with valid data.
+    Test creating a post with missing or invalid data.
+    Test retrieving a user's timeline with valid user ID.
+    Test retrieving a non-existent user's timeline.
+    Test pagination for user timelines.
+    Test retrieving top-rated posts with pagination.
+    Test accessing post details with a valid post ID.
+    Test accessing post details with an invalid post ID.
+
+C. Review Addition and Retrieval:
+
+    Test adding a review to a post with valid data.
+    Test adding a review to a post with missing or invalid data.
+    Test adding multiple reviews to the same post by different users simultaneously.
+    Test retrieving reviews for a post with valid post ID.
+    Test retrieving reviews for a non-existent post.
+    Test accessing review details with a valid review ID.
+    Test accessing review details with an invalid review ID.
+
+D. Top Posts Calculation:
+
+    Test the calculation of top posts based on average ratings.
+    Test the ordering of top posts by average rating.
+    Test pagination for top-rated posts.
+
+6- Seed database with 50k posts, more than 20k reviews. 
+# Assume you have functions to interact with your database. Adjust according to your actual database library.
+# For example, you might use SQL queries for a relational database.
+
+function seedDatabase():
+    # Seed users
+    for i in range(1, 1001):  # Assuming 50 users
+        createUser("user" + str(i), "password" + str(i), "email" + str(i) + "@example.com")
+
+    # Seed 50,000 posts
+    for i in range(1, 50001):
+        userId = getRandomUserId()  # Implement a function to get a random user ID
+        title = "Post " + str(i)
+        body = "This is the body of Post " + str(i)
+        createPost(userId, title, body)
+
+    # Seed 20,000 reviews
+    for i in range(1, 20001):
+        userId = getRandomUserId()
+        postId = getRandomPostId()
+        rating = getRandomRating()  # Implement a function to get a random rating
+        comment = "This is a review for Post " + str(postId)
+        createReview(userId, postId, rating, comment)
+
+# Execute the seeding process
+seedDatabase()
+
+8- Provide ERD.
+
++-----------------+          +-------------+         +------------+
+|     User        |          |   Post      |         |   Review   |
++-----------------+          +-------------+         +------------+
+| user_id (PK)    |<------|--| post_id (PK)|         | review_id  |
+| username        |       |  | user_id (FK)|<-----|--| user_id (FK)|
+| password_hash   |       |  | title       |      |  | post_id (FK)|
+| email           |       |  | body        |      |  | rating     |
++-----------------+       |  | created_at  |      |  | comment    |
+                          +--| updated_at  |      +------------+
+                             +-------------+

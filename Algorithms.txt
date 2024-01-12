@@ -1,0 +1,21 @@
+# Definition for singly-linked list.
+class ListNode:
+    val: int
+    next: ListNode
+
+# Function to find the middle node of a singly linked list
+function findMiddleNode(head: ListNode) -> ListNode:
+    # Initialize two pointers, slow and fast, pointing to the head
+    slow = head
+    fast = head
+
+    # Traverse the list with fast pointer moving twice as fast as slow
+    while fast is not null and fast.next is not null:
+        slow = slow.next
+        fast = fast.next.next
+
+    # At this point, slow is at the middle node or the second middle node
+    return slow
+
+Time Complexity: O(n)
+Space Complexity: O(1)

@@ -1,0 +1,36 @@
+# Initialize an array to represent the queue
+queue = []
+
+# Function to check if the queue is empty
+function isEmpty():
+    return length(queue) == 0
+
+# Function to enqueue an element at the rear of the queue
+function enqueue(element):
+    append(queue, element)
+
+# Function to dequeue an element from the front of the queue
+function dequeue():
+    if not isEmpty():
+        # Remove and return the front element
+        return pop(queue, 0)
+    else:
+        # If the queue is empty, return an error or handle it appropriately
+        print("Error: Queue is empty")
+        return null  # Or any appropriate value indicating an error
+
+# Function to get the front element of the queue without removing it
+function front():
+    if not isEmpty():
+        return queue[0]
+    else:
+        # If the queue is empty, return an error or handle it appropriately
+        print("Error: Queue is empty")
+        return null  # Or any appropriate value indicating an error
+
+# Function to get the size of the queue
+function size():
+    return length(queue)
+
+#  the time complexity of the enqueue operation is O(1).
+#  the time complexity of the dequeue operation in this implementation is O(n).
