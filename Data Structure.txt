@@ -1,3 +1,4 @@
+### Data Structure solution
 # Initialize an array to represent the queue
 queue = []
 
